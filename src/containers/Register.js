@@ -7,6 +7,7 @@ class Register extends Component {
         return (
             <div className="Register">
                 Welcome to <h1>Registration page</h1>
+                API URL: {process.env.REACT_APP_DEV_API_URL} 
             </div>
         );
     }

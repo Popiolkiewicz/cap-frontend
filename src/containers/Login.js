@@ -1,12 +1,90 @@
 import React, { Component } from 'react';
+import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
 import './Login.css';
 
 class Login extends Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            username: "",
+            password: ""
+        };
+    }
+
+    validateForm() {
+        return this.state.username.length > 0 
+            && this.state.password.length > 0;
+    }
+
+    handleChange = event => {
+        this.setState({
+            [event.target.id]: event.target.value
+        });
+    }
+
+    handleSubmit = event => {
+        event.preventDefault();
+
+        const authBasic = { 'Authorization': 'Basic ' + btoa(this.state.username + ':' + this.state.password) };
+        const requestOptions = {
+            method: 'GET',
+            headers: authBasic
+        };
+
+        return fetch(
+                process.env.REACT_APP_DEV_API_URL + 
+                '/oauth/authorize?response_type=code&client_id=' + 
+                process.env.REACT_APP_DEV_CLIENT_ID, 
+                requestOptions
+            ).then(this.handleResponse);
+    }
+
+    handleResponse(response) {
+        return response.text().then(text => {
+            window.alert(response);
+            if (!response.ok) {
+                if (response.status === 401) {
+                    // auto logout if 401 response returned from api
+                    window.alert("401!");
+                }
+                const error = response.statusText;
+                return Promise.reject(error);
+            }
+            return null;
+        });
+    }
+
     render() {
         return (
             <div className="Login">
-                Welcome to <h1>Login page</h1>
+                <form onSubmit={this.handleSubmit}>
+                    <FormGroup controlId="username" bsSize="large">
+                        <FormLabel>Username</FormLabel>
+                        <FormControl
+                            autoFocus
+                            type="text"
+                            value={this.state.username}
+                            onChange={this.handleChange}
+                        />
+                    </FormGroup>
+                    <FormGroup controlId="password" bsSize="large">
+                        <FormLabel>Password</FormLabel>
+                        <FormControl
+                            value={this.state.password}
+                            onChange={this.handleChange}
+                            type="password"
+                        />
+                    </FormGroup>
+                    <Button
+                        block
+                        bsSize="large"
+                        disabled={!this.validateForm()}
+                        type="submit">
+                        Login
+                    </Button>
+                </form>
             </div>
         );
     }
