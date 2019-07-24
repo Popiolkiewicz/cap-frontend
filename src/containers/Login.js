@@ -27,7 +27,10 @@ class Login extends Component {
     handleSubmit = event => {
         event.preventDefault();
 
-        const authBasic = { 'Authorization': 'Basic ' + btoa(this.state.username + ':' + this.state.password) };
+        const authBasic = { 
+            'Authorization': 'Basic ' + btoa(this.state.username + ':' + this.state.password), 
+            'Accept': 'text/html' 
+        };
         const requestOptions = {
             method: 'GET',
             headers: authBasic
@@ -43,14 +46,20 @@ class Login extends Component {
 
     handleResponse(response) {
         return response.text().then(text => {
-            window.alert(response);
+            window.alert(text);
             if (!response.ok) {
                 if (response.status === 401) {
-                    // auto logout if 401 response returned from api
                     window.alert("401!");
                 }
+
                 const error = response.statusText;
                 return Promise.reject(error);
+            }
+            else {
+                if (response.status === 200) {
+                    window.alert('Redirecting...');
+                    window.location = response.url;
+                };
             }
             return null;
         });
