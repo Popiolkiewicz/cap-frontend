@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, FormGroup, FormControl, FormLabel } from "react-bootstrap";
 import './Login.css';
+import * as queryString from 'query-string';
 
 class Login extends Component {
 
@@ -27,6 +28,10 @@ class Login extends Component {
     handleSubmit = event => {
         event.preventDefault();
 
+        const parsedQueryString = queryString.parse(window.location.search);
+        console.log(parsedQueryString);
+        console.log(window.location.search);
+
         const authBasic = { 
             'Authorization': 'Basic ' + btoa(this.state.username + ':' + this.state.password), 
             'Accept': 'text/html' 
@@ -38,7 +43,8 @@ class Login extends Component {
 
         return fetch(
                 process.env.REACT_APP_DEV_API_URL + 
-                '/oauth/authorize?response_type=code&client_id=' + 
+                '/oauth/authorize' + 
+                window.location.search + 
                 process.env.REACT_APP_DEV_CLIENT_ID, 
                 requestOptions
             ).then(this.handleResponse);
